@@ -7,23 +7,23 @@
 const typeDefinitions = [
   // Comprehension-required range (0x0000-0x7FFF)
   {
-    name: 'MAPPED_ADDRESS',
+    name: 'MAPPED-ADDRESS',
     type: 0x0001,
   }, {
     name: 'USERNAME',
     type: 0x0006,
   }, {
-    name: 'MESSAGE_INTEGRITY',
+    name: 'MESSAGE-INTEGRITY',
     type: 0x0008,
   }, {
-    name: 'ERROR_CODE',
+    name: 'ERROR-CODE',
     type: 0x0009,
   }, {
-    name: 'UNKNOWN_ATTRIBUTES',
+    name: 'UNKNOWN-ATTRIBUTES',
     type: 0x000A,
   }, {
     // TURN
-    name: 'CHANNEL_NUMBER',
+    name: 'CHANNEL-NUMBER',
     type: 0x000C,
   }, {
     // TURN
@@ -31,7 +31,7 @@ const typeDefinitions = [
     type: 0x000D,
   }, {
     // TURN
-    name: 'XOR_PEER_ADDRESS',
+    name: 'XOR-PEER-ADDRESS',
     type: 0x0012,
   }, {
     // TURN
@@ -45,26 +45,26 @@ const typeDefinitions = [
     type: 0x0015,
   }, {
     // TURN
-    name: 'XOR_RELAYED_ADDRESS',
+    name: 'XOR-RELAYED-ADDRESS',
     type: 0x0016,
   }, {
     // TURN
-    name: 'EVEN_PORT',
+    name: 'EVEN-PORT',
     type: 0x0018,
   }, {
     // TURN
-    name: 'REQUESTED_TRANSPORT',
+    name: 'REQUESTED-TRANSPORT',
     type: 0x0019,
   }, {
     // TURN
-    name: 'DONT_FRAGMENT',
+    name: 'DONT-FRAGMENT',
     type: 0x001A,
   }, {
-    name: 'XOR_MAPPED_ADDRESS',
+    name: 'XOR-MAPPED-ADDRESS',
     type: 0x0020,
   }, {
     // TURN
-    name: 'RESERVATION_TOKEN',
+    name: 'RESERVATION-TOKEN',
     type: 0x0022,
   },
   // Comprehension-optional range (0x8000-0xFFFF)
@@ -72,7 +72,7 @@ const typeDefinitions = [
     name: 'SOFTWARE',
     type: 0x8022,
   },{
-    name: 'ALTERNATE_SERVER',
+    name: 'ALTERNATE-SERVER',
     type: 0x8023,
   },{
     name: 'FINGERPRINT',
