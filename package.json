@@ -1,0 +1,30 @@
+{
+  "name": "iceberg",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:pcarion/iceberg.git",
+  "author": "Pierre Carion <pcarion@gmail.com>",
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "prebuild": "rimraf ./lib && mkdir lib",
+    "build": "babel -d lib/ src/",
+    "prestart": "npm run build",
+    "start": "node lib/main.js",
+    "lint": "eslint src",
+    "test": "jest",
+    "testv": "jest --verbose=false"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^24.3.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^5.15.1",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-jest": "^22.3.0",
+    "jest": "^24.3.1",
+    "rimraf": "^2.6.3"
+  }
+}
