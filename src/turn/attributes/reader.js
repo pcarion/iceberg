@@ -72,9 +72,17 @@ const bufReader = (buf) => {
   return {
     readUInt(byteLength) {
       if (offset + byteLength > length) {
-        throw new Error(`Overfow read at offset:${offset} with length:${byteLength} maxLength is: ${length}`);
+        throw new Error(`Overfow readUInt at offset:${offset} with length:${byteLength} maxLength is: ${length}`);
       }
       const value = buf.readUIntBE(offset, byteLength);
+      offset += byteLength;
+      return value;
+    },
+    readUTF8(byteLength) {
+      if (offset + byteLength > length) {
+        throw new Error(`Overfow readUTF8 at offset:${offset} with length:${byteLength} maxLength is: ${length}`);
+      }
+      const value = buf.toString('utf8', offset, offset + byteLength);
       offset += byteLength;
       return value;
     },
@@ -110,7 +118,7 @@ const attributeReaders = [
     },
   }, {
     name: 'XOR-MAPPED-ADDRESS',
-    reader: (data, transactionId) => {
+    reader: (data, _length, transactionId) => {
       //  0                   1                   2                   3
       //  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
       // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -147,6 +155,14 @@ const attributeReaders = [
         address: (valueFamily === IPv6) ? buildIpv6Address(address) : address,
       };
     },
+  }, {
+    name: 'USERNAME',
+    reader: (data, length) => {
+      return {
+        value: data.readUTF8(length),
+        length,
+      };
+    },
   },
 ];
 
@@ -159,6 +175,7 @@ export default function readAttribute(type, bufValue, transactionId = []) {
     throw new Error('invalid type');
   }
   const data = bufReader(bufValue);
+  const length = bufValue.length;
 
-  return def.reader(data, transactionId);
+  return def.reader(data, length, transactionId);
 }

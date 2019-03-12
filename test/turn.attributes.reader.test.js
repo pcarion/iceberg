@@ -36,6 +36,7 @@ describe('turn.attributes.reader.test', () => {
       .toThrowError(/invalid address family/);
   });
 
+  // from https://tools.ietf.org/html/rfc5769
   test('parse valid XOR-MAPPED-ADDRESS (1)', () => {
     const type = 0x0020;
     const transactionId = msgToBytes([
@@ -43,7 +44,6 @@ describe('turn.attributes.reader.test', () => {
       'bc 34 d6 86',
       'fa 87 df ae',
     ]);
-    // from https://tools.ietf.org/html/rfc5769
     const msg = msgToBuf([
       '00 02 a1 47', // Address family (IPv6) and xor'd mapped port number
       '01 13 a9 fa', // }
@@ -67,5 +67,12 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
+  test('parse valid USERNAME (1)', () => {
+    const type = 0x0006;
+    expect(readAttribute(type, Buffer.from('68656c6c6f', 'hex'))).toEqual({
+      value: 'hello',
+      length: 5,
+    });
+  });
 
 });
