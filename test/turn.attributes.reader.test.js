@@ -75,4 +75,19 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
+  test('parse valid USERNAME (2)', () => {
+    const type = 0x0006;
+    const msg = msgToBuf([
+      'e3 83 9e e3', // }
+      '83 88 e3 83', // }
+      'aa e3 83 83', // }  Username value (18 bytes) and padding (2 bytes)
+      'e3 82 af e3', // }
+      '82 b9'      , // }
+    ]);
+    expect(readAttribute(type, msg)).toEqual({
+      value: 'マトリックス',
+      length: 18,
+    });
+  });
+
 });
