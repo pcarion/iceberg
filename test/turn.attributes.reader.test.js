@@ -103,4 +103,14 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
+
+  test('parse invalid ERROR-CODE (1)', () => {
+    const type = 0x0009;
+    const msg = msgToBuf([
+      '02 00 03 0a',
+      '65 72 72 6f 72 20 6d 65 73 73 61 67 65',
+    ]);
+    expect(() => readAttribute(type, msg))
+      .toThrowError(/The Reserved bits should be 0/);
+  });
 });

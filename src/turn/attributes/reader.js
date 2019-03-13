@@ -177,7 +177,7 @@ const attributeReaders = [
       const reason = data.readUTF8(length - 4);
       const reserved = (header & 0xFFFFF800) >> 8;
       if (reserved !== 0) {
-        throw new Error('The Reserved bits SHOULD be 0');
+        throw new Error('The Reserved bits should be 0');
       }
       const errNumber = header & 0xFF;
       const errClass = (header & 0x700) >> 8;
