@@ -163,6 +163,31 @@ const attributeReaders = [
         length,
       };
     },
+  }, {
+    //  0                   1                   2                   3
+    //  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |           Reserved, should be 0         |Class|     Number    |
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    // |      Reason Phrase (variable)                                ..
+    // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    name: 'ERROR-CODE',
+    reader: (data, length) => {
+      const header =  data.readUInt(4);
+      const reason = data.readUTF8(length - 4);
+      const reserved = (header & 0xFFFFF800) >> 8;
+      if (reserved !== 0) {
+        throw new Error('The Reserved bits SHOULD be 0');
+      }
+      const errNumber = header & 0xFF;
+      const errClass = (header & 0x700) >> 8;
+
+      return {
+        errClass,
+        errNumber,
+        reason,
+      };
+    },
   },
 ];
 

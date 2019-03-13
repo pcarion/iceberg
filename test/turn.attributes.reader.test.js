@@ -90,4 +90,17 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
+  test('parse valid ERROR-CODE (1)', () => {
+    const type = 0x0009;
+    const msg = msgToBuf([
+      '00 00 03 0a',
+      '65 72 72 6f 72 20 6d 65 73 73 61 67 65',
+    ]);
+    expect(readAttribute(type, msg)).toEqual({
+      errClass: 3,
+      errNumber: 10,
+      reason: 'error message',
+    });
+  });
+
 });
