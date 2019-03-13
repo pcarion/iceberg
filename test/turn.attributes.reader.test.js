@@ -118,12 +118,30 @@ describe('turn.attributes.reader.test', () => {
     const msg = msgToBuf([
       '65 78 61 6d', // }
       '70 6c 65 2e', // }  Realm value (11 bytes) and padding (1 byte)
-      '6f 72 67', // }
+      '6f 72 67',    // }
     ]);
 
     expect(readAttribute(type, msg)).toEqual({
       value: 'example.org',
       length: 11,
+    });
+  });
+
+  test('parse valid NONCE (1)', () => {
+    const type = 0x0015;
+    const msg = msgToBuf([
+      '66 2f 2f 34', // }
+      '39 39 6b 39', // }
+      '35 34 64 36', // }
+      '4f 4c 33 34', // }  Nonce value
+      '6f 4c 39 46', // }
+      '53 54 76 79', // }
+      '36 34 73 41', // }
+    ]);
+
+    expect(readAttribute(type, msg)).toEqual({
+      value: 'f//499k954d6OL34oL9FSTvy64sA',
+      length: 28,
     });
   });
 

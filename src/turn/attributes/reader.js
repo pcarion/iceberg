@@ -196,6 +196,14 @@ const attributeReaders = [
         length,
       };
     },
+  }, {
+    name: 'NONCE',
+    reader: (data, length) => {
+      return {
+        value: data.readUTF8(length),
+        length,
+      };
+    },
   },
 ];
 
