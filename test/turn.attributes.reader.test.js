@@ -103,7 +103,6 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
-
   test('parse invalid ERROR-CODE (1)', () => {
     const type = 0x0009;
     const msg = msgToBuf([
@@ -113,4 +112,20 @@ describe('turn.attributes.reader.test', () => {
     expect(() => readAttribute(type, msg))
       .toThrowError(/The Reserved bits should be 0/);
   });
+
+  test('parse valid REALM (1)', () => {
+    const type = 0x0014;
+    const msg = msgToBuf([
+      '65 78 61 6d', // }
+      '70 6c 65 2e', // }  Realm value (11 bytes) and padding (1 byte)
+      '6f 72 67', // }
+    ]);
+
+    expect(readAttribute(type, msg)).toEqual({
+      value: 'example.org',
+      length: 11,
+    });
+  });
+
+
 });

@@ -188,6 +188,14 @@ const attributeReaders = [
         reason,
       };
     },
+  }, {
+    name: 'REALM',
+    reader: (data, length) => {
+      return {
+        value: data.readUTF8(length),
+        length,
+      };
+    },
   },
 ];
 
