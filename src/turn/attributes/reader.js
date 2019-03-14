@@ -250,6 +250,13 @@ const attributeReaders = [
         channelNumber,
       };
     },
+  }, {
+    name: 'LIFETIME',
+    reader: (data) => {
+      return {
+        lifetime: data.readUInt(4),
+      };
+    },
   },
 ];
 

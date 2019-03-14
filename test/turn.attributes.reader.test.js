@@ -193,4 +193,11 @@ describe('turn.attributes.reader.test', () => {
       .toThrow(/RFFU not set to 0/);
   });
 
+
+  test('parse valid LIFETIME (1)', () => {
+    const type = 0x000d;
+    expect(readAttribute(type, Buffer.from('12345678', 'hex'))).toEqual({
+      lifetime: 0x12345678,
+    });
+  });
 });
