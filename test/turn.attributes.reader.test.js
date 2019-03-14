@@ -157,6 +157,20 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
+  test('parse valid SOFTWARE (1)', () => {
+    const type = 0x8022;
+    const msg = msgToBuf([
+      '74 65 73 74', //  }
+      '20 76 65 63', //  }  UTF-8 server name
+      '74 6f 72 20', //  }
+    ]);
+
+    expect(readAttribute(type, msg)).toEqual({
+      value: 'test vector ',
+      length: 12,
+    });
+  });
+
 
 
 });

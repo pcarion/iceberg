@@ -218,6 +218,14 @@ const attributeReaders = [
         attributes,
       };
     },
+  }, {
+    name: 'SOFTWARE',
+    reader: (data, length) => {
+      return {
+        value: data.readUTF8(length),
+        length,
+      };
+    },
   },
 ];
 
