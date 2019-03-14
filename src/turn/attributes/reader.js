@@ -278,6 +278,11 @@ const attributeReaders = [
         value: data.readBuffer(length),
       };
     },
+  }, {
+    name: 'XOR-RELAYED-ADDRESS',
+    reader: (data, _length, transactionId) => {
+      return readXorIPAddress(data, transactionId);
+    },
   },
 ];
 
