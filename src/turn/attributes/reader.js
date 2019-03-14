@@ -66,6 +66,31 @@ function buildIpv6Address(buf) {
   return result;
 }
 
+//  0                   1                   2                   3
+//  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// |0 0 0 0 0 0 0 0|    Family     |           Port                |
+// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// |                                                               |
+// |                 Address (32 bits or 128 bits)                 |
+// |                                                               |
+// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+function readIPAddress(data) {
+  const firstByte = data.readUInt(1);
+  if (firstByte !== 0) {
+    throw new Error('The first 8 bits of the MAPPED-ADDRESS must be set to 0');
+  }
+  const valueFamily = data.readUInt(1);
+  const port = data.readUInt(2);
+  const address = readAddress(valueFamily, data);
+  return {
+    family: parseTransportAddressFamily(valueFamily),
+    port,
+    address,
+  };
+
+}
+
 const bufReader = (buf) => {
   let offset = 0;
   const length = buf.length;
@@ -94,27 +119,7 @@ const attributeReaders = [
     // https://tools.ietf.org/html/rfc5389#section-15.1
     name: 'MAPPED-ADDRESS',
     reader: (data) => {
-      //  0                   1                   2                   3
-      //  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-      // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      // |0 0 0 0 0 0 0 0|    Family     |           Port                |
-      // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      // |                                                               |
-      // |                 Address (32 bits or 128 bits)                 |
-      // |                                                               |
-      // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      const firstByte = data.readUInt(1);
-      if (firstByte !== 0) {
-        throw new Error('The first 8 bits of the MAPPED-ADDRESS must be set to 0');
-      }
-      const valueFamily = data.readUInt(1);
-      const port = data.readUInt(2);
-      const address = readAddress(valueFamily, data);
-      return {
-        family: parseTransportAddressFamily(valueFamily),
-        port,
-        address,
-      };
+      return readIPAddress(data);
     },
   }, {
     name: 'XOR-MAPPED-ADDRESS',
@@ -225,6 +230,11 @@ const attributeReaders = [
         value: data.readUTF8(length),
         length,
       };
+    },
+  }, {
+    name: 'ALTERNATE-SERVER',
+    reader: (data) => {
+      return readIPAddress(data);
     },
   },
 ];

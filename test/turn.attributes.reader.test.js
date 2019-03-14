@@ -171,6 +171,13 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
-
+  test('parse valid ALTERNATE-SERVER (1)', () => {
+    const type = 0x8023;
+    expect(readAttribute(type, Buffer.from('0002100100010002100300040005000600070008', 'hex'))).toEqual({
+      family: CONSTANTS.transport.address.family.IPv6,
+      port: 4097,
+      address: [ 0x01, 0x02, 0x1003, 0x04, 0x05, 0x06, 0x07, 0x08 ],
+    });
+  });
 
 });
