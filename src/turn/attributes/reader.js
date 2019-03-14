@@ -91,6 +91,44 @@ function readIPAddress(data) {
 
 }
 
+//  0                   1                   2                   3
+//  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// |x x x x x x x x|    Family     |         X-Port                |
+// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// |                X-Address (Variable)
+// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+function readXorIPAddress(data, transactionId) {
+  if (!transactionId || transactionId.length !== 12) {
+    throw new Error('missing transactionId');
+  }
+  const firstByte = data.readUInt(1);
+  if (firstByte !== 0) {
+    throw new Error('The first 8 bits of the MAPPED-ADDRESS must be set to 0');
+  }
+  const valueFamily = data.readUInt(1);
+  const xPort = data.readUInt(2);
+  const port = xPort ^ (constants.magicCookie >> 16);
+  const xAddress = readRawAddress(valueFamily, data);
+  const magicCookieBuffer = [];
+  for(let i = 0; i < 4 ; i++) {
+    magicCookieBuffer.push(CONSTANTS.magicCookieBytes[i]);
+  }
+  for(let i = 0; i < 12 ; i++) {
+    magicCookieBuffer.push(transactionId[i]);
+  }
+  var address = [];
+  for(let i = 0; i < xAddress.length ; i++) {
+    address.push((xAddress[i] & 0xff) ^ magicCookieBuffer[i]);
+  }
+
+  return {
+    family: parseTransportAddressFamily(valueFamily),
+    port,
+    address: (valueFamily === IPv6) ? buildIpv6Address(address) : address,
+  };
+}
+
 const bufReader = (buf) => {
   let offset = 0;
   const length = buf.length;
@@ -124,41 +162,7 @@ const attributeReaders = [
   }, {
     name: 'XOR-MAPPED-ADDRESS',
     reader: (data, _length, transactionId) => {
-      //  0                   1                   2                   3
-      //  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-      // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      // |x x x x x x x x|    Family     |         X-Port                |
-      // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      // |                X-Address (Variable)
-      // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      if (!transactionId || transactionId.length !== 12) {
-        throw new Error('missing transactionId');
-      }
-      const firstByte = data.readUInt(1);
-      if (firstByte !== 0) {
-        throw new Error('The first 8 bits of the MAPPED-ADDRESS must be set to 0');
-      }
-      const valueFamily = data.readUInt(1);
-      const xPort = data.readUInt(2);
-      const port = xPort ^ (constants.magicCookie >> 16);
-      const xAddress = readRawAddress(valueFamily, data);
-      const magicCookieBuffer = [];
-      for(let i = 0; i < 4 ; i++) {
-        magicCookieBuffer.push(CONSTANTS.magicCookieBytes[i]);
-      }
-      for(let i = 0; i < 12 ; i++) {
-        magicCookieBuffer.push(transactionId[i]);
-      }
-      var address = [];
-      for(let i = 0; i < xAddress.length ; i++) {
-        address.push((xAddress[i] & 0xff) ^ magicCookieBuffer[i]);
-      }
-
-      return {
-        family: parseTransportAddressFamily(valueFamily),
-        port,
-        address: (valueFamily === IPv6) ? buildIpv6Address(address) : address,
-      };
+      return readXorIPAddress(data, transactionId);
     },
   }, {
     name: 'USERNAME',
@@ -256,6 +260,11 @@ const attributeReaders = [
       return {
         lifetime: data.readUInt(4),
       };
+    },
+  }, {
+    name: 'XOR-PEER-ADDRESS',
+    reader: (data, _length, transactionId) => {
+      return readXorIPAddress(data, transactionId);
     },
   },
 ];

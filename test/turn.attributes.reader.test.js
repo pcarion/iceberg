@@ -193,11 +193,40 @@ describe('turn.attributes.reader.test', () => {
       .toThrow(/RFFU not set to 0/);
   });
 
-
   test('parse valid LIFETIME (1)', () => {
     const type = 0x000d;
     expect(readAttribute(type, Buffer.from('12345678', 'hex'))).toEqual({
       lifetime: 0x12345678,
+    });
+  });
+
+  test('parse valid XOR-PEER-ADDRESS (1)', () => {
+    const type = 0x0012;
+    const transactionId = msgToBytes([
+      'b7 e7 a7 01',
+      'bc 34 d6 86',
+      'fa 87 df ae',
+    ]);
+    const msg = msgToBuf([
+      '00 02 a1 47', // Address family (IPv6) and xor'd mapped port number
+      '01 13 a9 fa', // }
+      'a5 d3 f1 79', //  }  Xor'd mapped IPv6 address
+      'bc 25 f4 b5', //  }
+      'be d2 b9 d9', //  }
+    ]);
+    expect(readAttribute(type, msg, transactionId)).toEqual({
+      family: CONSTANTS.transport.address.family.IPv6,
+      port: 32853,
+      address: [
+        parseInt('2001', 16),
+        parseInt('db8', 16),
+        parseInt('1234', 16),
+        parseInt('5678', 16),
+        parseInt('11', 16),
+        parseInt('2233', 16),
+        parseInt('4455', 16),
+        parseInt('6677', 16),
+      ],
     });
   });
 });
