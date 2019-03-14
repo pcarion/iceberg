@@ -180,4 +180,17 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
+  test('parse valid CHANNEL-NUMBER (1)', () => {
+    const type = 0x000c;
+    expect(readAttribute(type, Buffer.from('01020000', 'hex'))).toEqual({
+      channelNumber: 258,
+    });
+  });
+
+  test('parse invalid CHANNEL-NUMBER (1)', () => {
+    const type = 0x000c;
+    expect(() => readAttribute(type, Buffer.from('01020001', 'hex')))
+      .toThrow(/RFFU not set to 0/);
+  });
+
 });

@@ -236,6 +236,20 @@ const attributeReaders = [
     reader: (data) => {
       return readIPAddress(data);
     },
+  }, {
+    name: 'CHANNEL-NUMBER',
+    reader: (data, length) => {
+      if (length !== 4) {
+        throw new Error('Invalid length for CHANNEL-NUMBER');
+      }
+      const channelNumber = data.readUInt(2);
+      if (data.readUInt(2) !== 0) {
+        throw new Error('RFFU not set to 0');
+      }
+      return {
+        channelNumber,
+      };
+    },
   },
 ];
 
