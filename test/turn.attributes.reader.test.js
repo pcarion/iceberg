@@ -145,5 +145,18 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
+  test('parse valid UNKNOWN-ATTRIBUTES (1)', () => {
+    const type = 0x000A;
+    const msg = msgToBuf([
+      '00 01 ff ff',
+      '00 03 01 AA',
+    ]);
+
+    expect(readAttribute(type, msg)).toEqual({
+      attributes: [ 0x01, 0xffff, 0x0003, 0x01aa],
+    });
+  });
+
+
 
 });

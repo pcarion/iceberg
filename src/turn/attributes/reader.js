@@ -204,6 +204,20 @@ const attributeReaders = [
         length,
       };
     },
+  }, {
+    name: 'UNKNOWN-ATTRIBUTES',
+    reader: (data, length) => {
+      if (length % 2 !== 0) {
+        throw new Error('invalid message length for UNKNOWN-ATTRIBUTES');
+      }
+      const attributes = [];
+      for(let i = 0; i < length / 2; i++) {
+        attributes[i] = data.readUInt(2);
+      }
+      return {
+        attributes,
+      };
+    },
   },
 ];
 
