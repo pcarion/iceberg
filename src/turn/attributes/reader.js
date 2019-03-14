@@ -149,6 +149,11 @@ const bufReader = (buf) => {
       offset += byteLength;
       return value;
     },
+    readBuffer(byteLength) {
+      const value = buf.slice(0, byteLength);
+      // we make a copy of the buffer
+      return Buffer.from(value);
+    },
   };
 };
 
@@ -265,6 +270,13 @@ const attributeReaders = [
     name: 'XOR-PEER-ADDRESS',
     reader: (data, _length, transactionId) => {
       return readXorIPAddress(data, transactionId);
+    },
+  }, {
+    name: 'DATA',
+    reader: (data, length) => {
+      return {
+        value: data.readBuffer(length),
+      };
     },
   },
 ];

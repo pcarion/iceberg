@@ -229,4 +229,10 @@ describe('turn.attributes.reader.test', () => {
       ],
     });
   });
+
+  test('parse valid DATA (1)', () => {
+    const type = 0x0013;
+    const result = readAttribute(type, Buffer.from('12345678', 'hex'));
+    expect(result.value.toString('hex')).toEqual('12345678');
+  });
 });
