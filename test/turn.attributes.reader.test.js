@@ -103,14 +103,18 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
-  test('parse invalid ERROR-CODE (1)', () => {
+  test('parse valid ERROR-CODE (3)', () => {
     const type = 0x0009;
+    // we don't throw if the reserved bits are not 0s
     const msg = msgToBuf([
       '02 00 03 0a',
       '65 72 72 6f 72 20 6d 65 73 73 61 67 65',
     ]);
-    expect(() => readAttribute(type, msg))
-      .toThrowError(/The Reserved bits should be 0/);
+    expect(readAttribute(type, msg)).toEqual({
+      errClass: 3,
+      errNumber: 10,
+      reason: 'error message',
+    });
   });
 
   test('parse valid REALM (1)', () => {
@@ -187,10 +191,12 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
-  test('parse invalid CHANNEL-NUMBER (1)', () => {
+  test('parse valid CHANNEL-NUMBER (2)', () => {
     const type = 0x000c;
-    expect(() => readAttribute(type, Buffer.from('01020001', 'hex')))
-      .toThrow(/RFFU not set to 0/);
+    // allow non 0 rffu bits
+    expect(readAttribute(type, Buffer.from('00330001', 'hex'))).toEqual({
+      channelNumber: 51,
+    });
   });
 
   test('parse valid LIFETIME (1)', () => {

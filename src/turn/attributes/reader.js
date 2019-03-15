@@ -151,8 +151,14 @@ const bufReader = (buf) => {
     },
     readBuffer(byteLength) {
       const value = buf.slice(0, byteLength);
+      offset += byteLength;
       // we make a copy of the buffer
       return Buffer.from(value);
+    },
+    checkEmpty() {
+      if (offset !== length) {
+        throw new Error('unread data in message');
+      }
     },
   };
 };
@@ -162,18 +168,24 @@ const attributeReaders = [
     // https://tools.ietf.org/html/rfc5389#section-15.1
     name: 'MAPPED-ADDRESS',
     reader: (data) => {
-      return readIPAddress(data);
+      const result = readIPAddress(data);
+      data.checkEmpty();
+      return result;
     },
   }, {
     name: 'XOR-MAPPED-ADDRESS',
     reader: (data, _length, transactionId) => {
-      return readXorIPAddress(data, transactionId);
+      const result = readXorIPAddress(data, transactionId);
+      data.checkEmpty();
+      return result;
     },
   }, {
     name: 'USERNAME',
     reader: (data, length) => {
+      const value = data.readUTF8(length);
+      data.checkEmpty();
       return {
-        value: data.readUTF8(length),
+        value,
         length,
       };
     },
@@ -189,12 +201,9 @@ const attributeReaders = [
     reader: (data, length) => {
       const header =  data.readUInt(4);
       const reason = data.readUTF8(length - 4);
-      const reserved = (header & 0xFFFFF800) >> 8;
-      if (reserved !== 0) {
-        throw new Error('The Reserved bits should be 0');
-      }
       const errNumber = header & 0xFF;
       const errClass = (header & 0x700) >> 8;
+      data.checkEmpty();
 
       return {
         errClass,
@@ -205,16 +214,20 @@ const attributeReaders = [
   }, {
     name: 'REALM',
     reader: (data, length) => {
+      const value = data.readUTF8(length);
+      data.checkEmpty();
       return {
-        value: data.readUTF8(length),
+        value,
         length,
       };
     },
   }, {
     name: 'NONCE',
     reader: (data, length) => {
+      const value = data.readUTF8(length);
+      data.checkEmpty();
       return {
-        value: data.readUTF8(length),
+        value,
         length,
       };
     },
@@ -228,6 +241,7 @@ const attributeReaders = [
       for(let i = 0; i < length / 2; i++) {
         attributes[i] = data.readUInt(2);
       }
+      data.checkEmpty();
       return {
         attributes,
       };
@@ -235,15 +249,19 @@ const attributeReaders = [
   }, {
     name: 'SOFTWARE',
     reader: (data, length) => {
+      const value = data.readUTF8(length);
+      data.checkEmpty();
       return {
-        value: data.readUTF8(length),
+        value,
         length,
       };
     },
   }, {
     name: 'ALTERNATE-SERVER',
     reader: (data) => {
-      return readIPAddress(data);
+      const result = readIPAddress(data);
+      data.checkEmpty();
+      return result;
     },
   }, {
     name: 'CHANNEL-NUMBER',
@@ -252,9 +270,8 @@ const attributeReaders = [
         throw new Error('Invalid length for CHANNEL-NUMBER');
       }
       const channelNumber = data.readUInt(2);
-      if (data.readUInt(2) !== 0) {
-        throw new Error('RFFU not set to 0');
-      }
+      const _rffu = data.readUInt(2);
+      data.checkEmpty();
       return {
         channelNumber,
       };
@@ -262,26 +279,34 @@ const attributeReaders = [
   }, {
     name: 'LIFETIME',
     reader: (data) => {
+      const value = data.readUInt(4);
+      data.checkEmpty();
       return {
-        lifetime: data.readUInt(4),
+        lifetime: value,
       };
     },
   }, {
     name: 'XOR-PEER-ADDRESS',
     reader: (data, _length, transactionId) => {
-      return readXorIPAddress(data, transactionId);
+      const result = readXorIPAddress(data, transactionId);
+      data.checkEmpty();
+      return result;
     },
   }, {
     name: 'DATA',
     reader: (data, length) => {
+      const value = data.readBuffer(length);
+      data.checkEmpty();
       return {
-        value: data.readBuffer(length),
+        value,
       };
     },
   }, {
     name: 'XOR-RELAYED-ADDRESS',
     reader: (data, _length, transactionId) => {
-      return readXorIPAddress(data, transactionId);
+      const result = readXorIPAddress(data, transactionId);
+      data.checkEmpty();
+      return result;
     },
   }, {
     name: 'EVEN-PORT',
@@ -292,6 +317,7 @@ const attributeReaders = [
       // |R|    RFFU     |
       // +-+-+-+-+-+-+-+-+
       const value = data.readUInt(1);
+      data.checkEmpty();
       return {
         R: (value & 0x80) !== 0,
       };
@@ -305,7 +331,8 @@ const attributeReaders = [
       // |    Protocol   |                    RFFU                       |
       // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       const value = data.readUInt(1);
-      const _RFFU = data.readUInt(3);
+      const _rffu = data.readUInt(3);
+      data.checkEmpty();
       return {
         protocol: value,
       };
@@ -325,6 +352,7 @@ const attributeReaders = [
     name: 'RESERVATION-TOKEN',
     reader: (data) => {
       const value = data.readUInt(1);
+      data.checkEmpty();
       return {
         token: value,
       };
