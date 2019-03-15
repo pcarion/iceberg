@@ -1,6 +1,5 @@
 import CONSTANTS from '../src/turn/constants';
 import readAttribute from '../src/turn/attributes/reader';
-import getFailedSnapshotTests from 'jest-util/build/getFailedSnapshotTests';
 
 function msgToBuf(def) {
   return Buffer.from(def.join('').replace(/ /g, ''), 'hex');
@@ -298,6 +297,13 @@ describe('turn.attributes.reader.test', () => {
   test('parse valid DONT-FRAGMENT (1)', () => {
     const type = 0x001A;
     expect(readAttribute(type, Buffer.from('', 'hex'))).toEqual({
+    });
+  });
+
+  test('parse valid RESERVATION-TOKEN (1)', () => {
+    const type = 0x0022;
+    expect(readAttribute(type, Buffer.from('42', 'hex'))).toEqual({
+      token: 66,
     });
   });
 

@@ -321,6 +321,14 @@ const attributeReaders = [
         // empty message
       };
     },
+  }, {
+    name: 'RESERVATION-TOKEN',
+    reader: (data) => {
+      const value = data.readUInt(1);
+      return {
+        token: value,
+      };
+    },
   },
 ];
 
