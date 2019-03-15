@@ -295,4 +295,10 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
+  test('parse valid DONT-FRAGMENT (1)', () => {
+    const type = 0x001A;
+    expect(readAttribute(type, Buffer.from('', 'hex'))).toEqual({
+    });
+  });
+
 });

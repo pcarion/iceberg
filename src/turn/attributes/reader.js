@@ -310,6 +310,17 @@ const attributeReaders = [
         protocol: value,
       };
     },
+  },{
+    name: 'DONT-FRAGMENT',
+    reader: (_data, length) => {
+      // TODO add generic mechanism to ensure all data have been read
+      if (length !== 0) {
+        throw new Error('Invalid message');
+      }
+      return {
+        // empty message
+      };
+    },
   },
 ];
 
