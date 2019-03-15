@@ -292,11 +292,22 @@ const attributeReaders = [
       // |R|    RFFU     |
       // +-+-+-+-+-+-+-+-+
       const value = data.readUInt(1);
-      if ((value & 0x7f) !== 0) {
-        throw new Error('RFFU not set to 0');
-      }
       return {
         R: (value & 0x80) !== 0,
+      };
+    },
+  }, {
+    name: 'REQUESTED-TRANSPORT',
+    reader: (data) => {
+      //  0                   1                   2                   3
+      //  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      // |    Protocol   |                    RFFU                       |
+      // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      const value = data.readUInt(1);
+      const _RFFU = data.readUInt(3);
+      return {
+        protocol: value,
       };
     },
   },

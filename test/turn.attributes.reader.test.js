@@ -281,11 +281,18 @@ describe('turn.attributes.reader.test', () => {
     });
   });
 
-  test('parse invalid EVEN-PORT (1)', () => {
+  test('parse valid EVEN-PORT (3)', () => {
     const type = 0x0018;
-    expect(() => readAttribute(type, Buffer.from('01', 'hex')))
-      .toThrow(/RFFU not set to 0/);
+    expect(readAttribute(type, Buffer.from('01', 'hex'))).toEqual({
+      R: false,
+    });
   });
 
+  test('parse valid REQUESTED-TRANSPORT (1)', () => {
+    const type = 0x0019;
+    expect(readAttribute(type, Buffer.from('22000000', 'hex'))).toEqual({
+      protocol: 34,
+    });
+  });
 
 });
