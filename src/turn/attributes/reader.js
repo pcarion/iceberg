@@ -283,6 +283,22 @@ const attributeReaders = [
     reader: (data, _length, transactionId) => {
       return readXorIPAddress(data, transactionId);
     },
+  }, {
+    name: 'EVEN-PORT',
+    reader: (data) => {
+      //  0
+      //  0 1 2 3 4 5 6 7
+      // +-+-+-+-+-+-+-+-+
+      // |R|    RFFU     |
+      // +-+-+-+-+-+-+-+-+
+      const value = data.readUInt(1);
+      if ((value & 0x7f) !== 0) {
+        throw new Error('RFFU not set to 0');
+      }
+      return {
+        R: (value & 0x80) !== 0,
+      };
+    },
   },
 ];
 

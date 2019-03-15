@@ -1,5 +1,6 @@
 import CONSTANTS from '../src/turn/constants';
 import readAttribute from '../src/turn/attributes/reader';
+import getFailedSnapshotTests from 'jest-util/build/getFailedSnapshotTests';
 
 function msgToBuf(def) {
   return Buffer.from(def.join('').replace(/ /g, ''), 'hex');
@@ -264,6 +265,26 @@ describe('turn.attributes.reader.test', () => {
         parseInt('6677', 16),
       ],
     });
+  });
+
+  test('parse valid EVEN-PORT (1)', () => {
+    const type = 0x0018;
+    expect(readAttribute(type, Buffer.from('00', 'hex'))).toEqual({
+      R: false,
+    });
+  });
+
+  test('parse valid EVEN-PORT (2)', () => {
+    const type = 0x0018;
+    expect(readAttribute(type, Buffer.from('80', 'hex'))).toEqual({
+      R: true,
+    });
+  });
+
+  test('parse invalid EVEN-PORT (1)', () => {
+    const type = 0x0018;
+    expect(() => readAttribute(type, Buffer.from('01', 'hex')))
+      .toThrow(/RFFU not set to 0/);
   });
 
 
